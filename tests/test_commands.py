@@ -333,6 +333,27 @@ def test_import_cards_dry_run(tmp_path: Path) -> None:
 
 
 @respx.mock
+def test_import_cards_warns_on_unknown_label(tmp_path: Path) -> None:
+    csv = tmp_path / "cards.csv"
+    csv.write_text("name,labels\nFix bug,Ghost\n")
+    respx.get(f"{BASE}/members/me/boards").mock(
+        return_value=httpx.Response(200, json=_boards_mock())
+    )
+    respx.get(f"{BASE}/boards/board1/lists").mock(
+        return_value=httpx.Response(200, json=_lists_mock())
+    )
+    respx.get(f"{BASE}/boards/board1/labels").mock(
+        return_value=httpx.Response(200, json=[{"id": "lbl1", "name": "Bug"}])
+    )
+    respx.post(f"{BASE}/cards").mock(
+        return_value=httpx.Response(200, json={"id": "card1", "name": "Fix bug"})
+    )
+    result = runner.invoke(import_cards_app, ["--board", "My Board", "--list", "Backlog", str(csv)])
+    assert result.exit_code == 0
+    assert "Ghost" in result.output  # typer runner mixes stderr into output
+
+
+@respx.mock
 def test_import_cards_resolves_labels(tmp_path: Path) -> None:
     csv = tmp_path / "cards.csv"
     csv.write_text("name,labels\nFix bug,Bug\n")

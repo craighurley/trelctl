@@ -55,6 +55,17 @@ def test_resolve_list_by_id() -> None:
 
 
 @respx.mock
+def test_resolve_list_name_takes_priority_over_id() -> None:
+    lists = [
+        {"id": "list1", "name": "list2"},  # name matches "list2" string
+        {"id": "list2", "name": "In Progress"},
+    ]
+    respx.get(f"{BASE}/boards/{BOARD_ID}/lists").mock(return_value=httpx.Response(200, json=lists))
+    result = resolve_list(BOARD_ID, "list2")
+    assert result["id"] == "list1"
+
+
+@respx.mock
 def test_resolve_list_not_found_exits(capsys: pytest.CaptureFixture) -> None:
     respx.get(f"{BASE}/boards/{BOARD_ID}/lists").mock(return_value=httpx.Response(200, json=LISTS))
     with pytest.raises(SystemExit) as exc:

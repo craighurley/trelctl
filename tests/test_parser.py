@@ -103,3 +103,18 @@ def test_parse_cards_empty_optional_fields(tmp_path: Path) -> None:
     assert rows[0].labels == []
     assert rows[0].checklist == []
     assert rows[0].members == []
+
+
+# --- due_date_to_rfc3339 ---
+
+
+def test_due_date_to_rfc3339() -> None:
+    from trelctl.parser import due_date_to_rfc3339
+
+    assert due_date_to_rfc3339("2026-04-15") == "2026-04-15T00:00:00.000Z"
+
+
+def test_due_date_to_rfc3339_year_boundary() -> None:
+    from trelctl.parser import due_date_to_rfc3339
+
+    assert due_date_to_rfc3339("2026-12-31") == "2026-12-31T00:00:00.000Z"
