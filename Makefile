@@ -91,6 +91,6 @@ validate-pypi-package: ## Install the package from pypi.org and perform basic va
 	cd "$$DEST" && \
 	trap 'rm -fr $(VENV_DIR)' EXIT; \
 	uv venv --clear $(VENV_DIR) --python $(PYTHON_VERSION) && \
-	VIRTUAL_ENV=$(VENV_DIR) uv pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple $(PACKAGE_NAME)==$$TAG && \
+	VIRTUAL_ENV=$(VENV_DIR) uv pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match $(PACKAGE_NAME)==$$TAG && \
 	VIRTUAL_ENV=$(VENV_DIR) uv run $(PACKAGE_NAME) --help
 .PHONY: validate-pypi-package
